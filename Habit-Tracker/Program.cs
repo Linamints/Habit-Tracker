@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
 
 namespace Habit_Tracker
@@ -53,20 +54,20 @@ namespace Habit_Tracker
 
                 switch (command)
                 {
-                    case 0:
+                    case "0":
                         Console.WriteLine("\nGoodbye!\n");
                         closeApp = true;
                         break;
-                    case 1:
+                    case "1":
                         GetAllRecords();
                         break;
-                    case 2:
+                    case "2":
                         Insert();
                         break;
-                    case 3:
+                    case "3":
                         Delete();
                         break;
-                    case 4:
+                    case "4":
                         Update();
                         break;
                     default:
@@ -77,6 +78,47 @@ namespace Habit_Tracker
        
           
 
+            }
+        }
+
+        private static void GetAllRecords()
+        {
+            Console.Clear();
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"SELECT * FROM drinking_water ";
+                List<DrinkingWater> tableData = new();
+
+                SqliteDataReader reader = tableCmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        tableData.Add(
+                            new DrinkingWater
+                            {
+                                Id = reader.GetInt32(0),
+                                Date = DateTime.ParseExact(reader.GetString(1), "dd-MM-yy", new CultureInfo("en-US"))
+                                Quantity = reader.GetInt32(2)
+                            }); ;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No rows found.");
+                }
+                connection.Close();
+
+                Console.WriteLine("__________________________________________\n");
+                foreach (var dw in tableData)
+                {
+                    Console.WriteLine($"{dw.Id} - {dw.Date.ToString("dd-MM-yyyy")} - Quantity: {dw.Quantity}");
+                }
+                Console.WriteLine("__________________________________________\n");
             }
         }
 
@@ -120,4 +162,10 @@ namespace Habit_Tracker
         }
     }
 }
-//Leaving off at 18 minutes, application currently cannot run in current form. Need to tidy up code.
+
+public class DrinkingWater
+
+    public int Id { get; set;  }
+    public DateTime Date { get; set; }
+    public int Quantity { get; set; }
+//Leaving off at 22:46, application currently cannot run in current form. Need to tidy up code and correct errors in next available study session.
